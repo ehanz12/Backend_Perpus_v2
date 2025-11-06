@@ -14,4 +14,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Route Logout and Me
     Route::get('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+
+    // Route Resource Book (Admin)
+    
 });

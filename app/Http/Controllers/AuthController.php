@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RegisterRequest;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -53,14 +54,24 @@ class AuthController extends Controller
 
             $user->save();
 
+            $latest = $user->id;
+
+            $role = new Role();
+            $role->user_id = $latest;
+            $role->role = "user";
+            $role->save();
+
             $token = $user->createToken('auth_token')->plainTextToken;
 
             DB::commit();
 
             return response()->json([
                 "message" => "successfully created user",
-                "token" => $token,
-                "users" => $user,
+                "data" => [
+                    "token" => $token,
+                    "users" => $user,
+                    "role" => $role->role
+                ]
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
