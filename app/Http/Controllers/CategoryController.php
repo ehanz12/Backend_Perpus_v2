@@ -8,6 +8,29 @@ use Illuminate\Support\Facades\DB;
 
 class CategoryController extends Controller
 {
+
+    public function index()
+    {
+        try {
+            $category = Category::select('name')->get();
+
+            if(!$category) {
+                return response()->json(["message" => "category not found"], 401);
+            }
+
+            return response()->json([
+                "message" => "category founds",
+                "data" => $category
+            ], 200);
+        } catch (\Exception $th) {
+            return response()->json([
+                "message" => "category not found",
+                "data" => null,
+                "error" => $th->getMessage()
+            ], 500);
+        }
+    }
+
     public function store(Request $request)
     {
         $data = $request->validate([
@@ -33,7 +56,7 @@ class CategoryController extends Controller
             ], 500);
         }   
     }
-
+    
     public function update(Request $request, $id)
     {
         $data = $request->validate([
