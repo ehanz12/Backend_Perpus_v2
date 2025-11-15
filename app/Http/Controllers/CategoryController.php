@@ -12,7 +12,7 @@ class CategoryController extends Controller
     public function index()
     {
         try {
-            $category = Category::select('name')->get();
+            $category = Category::select('name', 'id')->get();
 
             if(!$category) {
                 return response()->json(["message" => "category not found"], 401);

@@ -16,7 +16,8 @@ class BookRequest extends FormRequest
             "description" => "nullable",
             "pages" => "required|integer|min:1",
             "stock" => "required|integer|min:0",
-            "price" => "required|numeric|min:0",
+            "price" => "required|integer|min:0",
+            "published_at" => "required"
         ];
     }
 }
