@@ -14,7 +14,7 @@ class BooksController extends Controller
     public function index()
     {
         try {
-            $books = Book::with('category:id,name')->select('id', 'title', 'author', 'category_id', 'description', 'image', 'stock', 'pages', 'price', 'published_at')->get();
+            $books = Book::with('category:id,name')->select('id', 'title', 'author', 'category_id', 'description', 'isbn', 'language', 'shelf', 'status', 'weight', 'image', 'stock', 'pages', 'price', 'published_at')->get();
             return response()->json([
                 "message" => "Books this found !",
                 "data" => $books
@@ -31,9 +31,9 @@ class BooksController extends Controller
     public function show($id)
     {
         try {
-            $book = Book::with('category:id,name')->select('id', 'title', 'author', 'category_id', 'description', 'image', 'stock', 'pages', 'price', 'published_at')->find($id);
+            $book = Book::with('category:id,name')->select('id', 'title', 'author', 'category_id', 'description', 'isbn', 'language', 'shelf', 'status', 'weight', 'image', 'stock', 'pages', 'price', 'published_at')->find($id);
 
-            if(!$book) {
+            if (!$book) {
                 return response()->json([
                     "message" => "book not found !",
                     "data" => null
@@ -58,10 +58,16 @@ class BooksController extends Controller
         $data = $request->validated();
         $book = Book::Find($id);
         DB::beginTransaction();
-        
+
         try {
-        $imagePath = null;
-        if ($request->hasFile('image')) {
+            if (!$book) {
+                return response()->json([
+                    "message" => "book not found !",
+                    "data" => null
+                ], 400);
+            }
+            $imagePath = null;
+            if ($request->hasFile('image')) {
                 // Hapus cover lama
                 if ($book->image && Storage::disk('public')->exists($book->image)) {
                     Storage::disk('public')->delete($book->image);
@@ -70,17 +76,15 @@ class BooksController extends Controller
                 $imagePath = $request->file('image')->store('image', 'public');
             }
 
-            if(!$book) {
-                return response()->json([
-                    "message" => "book not found !",
-                    "data" => null
-                ], 400);
-            }
 
             $book->title = $data['title'];
             $book->author = $data['author'];
             $book->category_id = $data['category_id'];
             $book->description = $data['description'];
+            $book->isbn = $data['isbn'];
+            $book->language = $data['language'];
+            $book->shelf = $data['shelf'];
+            $book->status = $data['status'];
             if ($imagePath) {
                 $book->image = $imagePath;
             }
@@ -90,7 +94,7 @@ class BooksController extends Controller
             $book->published_at = $data['published_at'];
 
             $book->save();
-            
+
             DB::commit();
 
             return response()->json([
@@ -125,7 +129,12 @@ class BooksController extends Controller
             $book->author = $data['author'];
             $book->category_id = $data['category_id'];
             $book->description = $data['description'];
+            $book->isbn = $data['isbn'];
+            $book->language = $data['language'] ?? 'ID';
+            $book->shelf = $data['shelf'] ?? null;
+            $book->status = $data['status'] ?? 'available';
             $book->image = $imagePath;
+            $book->weight = $data['weight'] ?? 0;
             $book->stock = $data['stock'];
             $book->pages = $data['pages'];
             $book->price = $data['price'];
@@ -151,18 +160,22 @@ class BooksController extends Controller
     {
         $book = Book::Find($id);
         try {
-            if(!$book) {
+            if (!$book) {
                 return response()->json([
                     "message" => "book not found !",
                     "data" => null
                 ], 400);
+            }
+
+            if ($book->image && Storage::disk('public')->exists($book->image)) {
+                Storage::disk('public')->delete($book->image);
             }
             $book->delete();
 
             return response()->json([
                 "message" => "book found !",
                 "data" => null
-            ], 200);    
+            ], 200);
         } catch (\Exception $th) {
             return response()->json([
                 "message" => "error ",

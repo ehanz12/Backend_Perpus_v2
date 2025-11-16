@@ -13,6 +13,10 @@ class Book extends Model
         'category_id',
         'image',
         'description',
+        'language',
+        'shelf',
+        'status',
+        'weight',
         'pages',
         'stock',
         'price',
@@ -21,5 +25,10 @@ class Book extends Model
     public function category() : BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function borrowings()
+    {
+        return $this->hasMany(Borrowing::class);
     }
 }

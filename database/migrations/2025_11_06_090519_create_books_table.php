@@ -18,8 +18,13 @@ return new class extends Migration
             $table->foreignId('category_id')->constrained('categories')->onDelete('cascade');
             $table->string('image')->nullable();
             $table->text('description')->nullable();
+            $table->string('isbn')->unique()->nullable();
+            $table->string('language')->default('ID');
+            $table->string('shelf')->nullable();
+            $table->enum('status', ['available', 'unavailable'])->default('available');
             $table->integer('pages');
             $table->integer('stock');
+            $table->integer('weight');
             $table->integer('price');
             $table->date('published_at');
             $table->timestamps();
